@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check if the requester is a friend of the user
+    function isFriend(userId) {
+      return exists(/databases/$(database)/documents/users/$(userId)/friends/$(request.auth.uid));
+    }
+
+    // Users can read/write their own document, and friends can read basic stats
+    match /users/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || isFriend(userId));
+      allow write: if request.auth != null && request.auth.uid == userId;
+
+      // Sub-collections
+      match /bmiLogs/{logId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /mealLogs/{logId} {
+        // Allow friends to see meal logs to calculate total calories
+        allow read: if request.auth != null && (request.auth.uid == userId || isFriend(userId));
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /workoutLogs/{logId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /friends/{friendId} {
+        allow read: if request.auth != null && (request.auth.uid == userId || request.auth.uid == friendId);
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      match /activityFeed/{feedId} {
+        // Friends need to read the activity feed
+        allow read: if request.auth != null && (request.auth.uid == userId || isFriend(userId));
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // Friend requests need to be readable by both sender and receiver
+    match /friendRequests/{requestId} {
+      allow read: if request.auth != null && (request.auth.uid == resource.data.fromUid || request.auth.uid == resource.data.toUid);
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && (request.auth.uid == resource.data.toUid || request.auth.uid == resource.data.fromUid);
+    }
+
+    match /foodDatabase/{foodId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+  }
+}

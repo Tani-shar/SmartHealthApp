@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand - Modern Indigo/Teal Palette -->
+    <color name="colorPrimary">#6366F1</color>
+    <color name="colorPrimaryDark">#4F46E5</color>
+    <color name="colorPrimaryLight">#EEF2FF</color>
+    <color name="colorAccent">#10B981</color>
+    <color name="colorError">#EF4444</color>
+    <color name="colorWarning">#F59E0B</color>
+    <color name="colorWater">#3B82F6</color>
+
+    <!-- UI Backgrounds -->
+    <color name="backgroundColor">#F8FAFC</color>
+    <color name="cardBackground">#FFFFFF</color>
+
+    <!-- Text Colors -->
+    <color name="textPrimary">#0F172A</color>
+    <color name="textSecondary">#64748B</color>
+    <color name="dividerColor">#E2E8F0</color>
+
+    <!-- Nav & Charts -->
+    <color name="nav_selected">#6366F1</color>
+    <color name="nav_unselected">#94A3B8</color>
+
+    <color name="chart_blue">#3B82F6</color>
+    <color name="chart_green">#10B981</color>
+    <color name="chart_red">#EF4444</color>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Smart Health</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_bmi">BMI</string>
+    <string name="nav_workout">Workout</string>
+    <string name="nav_calories">Calories</string>
+    <string name="nav_progress">Progress</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_steps">Steps</string>
+    <!-- Replace this with your actual Web Client ID from Firebase Console -->
+    <!-- Google Console → your project → Authentication → Sign-in method → Google → Web SDK config -->
+    <string name="default_web_client_id">425300990496-af1d7hu59dh7h9kl3ksee0t084pvc9pe.apps.googleusercontent.com</string>
+</resources>

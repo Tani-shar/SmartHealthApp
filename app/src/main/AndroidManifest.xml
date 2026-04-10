@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.stepcounter" android:required="false" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@android:drawable/ic_menu_compass"
+        android:label="@string/app_name"
+        android:roundIcon="@android:drawable/ic_menu_compass"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.SmartHealth">
+
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:noHistory="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".auth.LoginActivity"             android:exported="false" />
+        <activity android:name=".auth.RegisterActivity"          android:exported="false" />
+        <activity android:name=".auth.SetupProfileActivity"      android:exported="false" />
+        <activity android:name=".auth.SmartOnboardingActivity"   android:exported="false" />
+        <activity android:name=".MainActivity"                   android:exported="false" />
+        <activity android:name=".admin.AdminDashboardActivity"   android:exported="false" />
+        <activity android:name=".calories.scan.FoodScannerActivity" android:exported="false" />
+        <activity android:name=".posedetection.LiveWorkoutActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity android:name=".posedetection.VideoAnalysisActivity" android:exported="false" />
+        <activity android:name=".foodai.FoodImageAnalysisActivity" android:exported="false" />
+        <activity android:name=".trainer.AiTrainerActivity" android:exported="false" />
+
+        <!-- FCM Service -->
+        <service
+            android:name=".notifications.SmartHealthMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- FileProvider for sharing progress images -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+    </application>
+
+</manifest>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.smarthealth.home.HomeFragment"
+        android:label="Home" />
+
+    <fragment
+        android:id="@+id/bmiFragment"
+        android:name="com.smarthealth.bmi.BmiFragment"
+        android:label="BMI Calculator" />
+
+    <fragment
+        android:id="@+id/workoutFragment"
+        android:name="com.smarthealth.workout.WorkoutFragment"
+        android:label="Workout Plan" />
+
+    <fragment
+        android:id="@+id/caloriesFragment"
+        android:name="com.smarthealth.calories.CaloriesFragment"
+        android:label="Calorie Tracker" />
+
+    <fragment
+        android:id="@+id/progressFragment"
+        android:name="com.smarthealth.progress.ProgressFragment"
+        android:label="Progress" />
+
+    <fragment
+        android:id="@+id/stepsFragment"
+        android:name="com.smarthealth.steps.StepsFragment"
+        android:label="Steps" />
+
+    <fragment
+        android:id="@+id/socialFragment"
+        android:name="com.smarthealth.social.SocialFragment"
+        android:label="Friends" />
+
+    <fragment
+        android:id="@+id/aiSuggestionsFragment"
+        android:name="com.smarthealth.ai.AiSuggestionsFragment"
+        android:label="AI Suggestions" />
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.smarthealth.profile.ProfileFragment"
+        android:label="Profile" />
+
+</navigation>
