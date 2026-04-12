@@ -27,6 +27,7 @@ public class WorkoutFragment extends Fragment {
     private boolean isWorkoutActive = false;
     private final Handler timerHandler = new Handler(Looper.getMainLooper());
     private String currentCategory = "Normal Weight";
+    private String workoutLocation = "home";
     private double userWeight = 70.0;
 
     private final Runnable timerRunnable = new Runnable() {
@@ -151,7 +152,11 @@ public class WorkoutFragment extends Fragment {
                 Double weight = doc.getDouble("weightKg");
                 if (weight != null) userWeight = weight;
 
-                binding.tvWorkoutTitle.setText("Workouts for: " + currentCategory);
+                String loc = doc.getString("workoutLocation");
+                if (loc != null) workoutLocation = loc;
+
+                String locationLabel = "gym".equalsIgnoreCase(workoutLocation) ? "🏋️ Gym" : "🏠 Home";
+                binding.tvWorkoutTitle.setText("Workouts for: " + currentCategory + " (" + locationLabel + ")");
 
                 List<WorkoutExercise> exercises = BmiUtils.getWorkoutRecommendations(currentCategory);
                 WorkoutAdapter adapter = new WorkoutAdapter(exercises);

@@ -14,6 +14,8 @@ import com.smarthealth.utils.GeminiHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.smarthealth.utils.FirebaseHelper;
+
 /**
  * AI Step-by-Step Exercise Trainer.
  * Uses Gemini to generate step-by-step exercise instructions
@@ -28,12 +30,18 @@ public class AiTrainerActivity extends AppCompatActivity {
     private int currentStep = 0;
     private String selectedExercise = "Squats";
 
+    // User profile (loaded from Firestore)
+    private String workoutLocation = "home"; // "gym" or "home"
+    private String fitnessGoal = "maintain";
+    private String fitnessLevel = "beginner";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityAiTrainerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        loadUserProfile();
         setupUI();
     }
 
@@ -97,14 +105,33 @@ public class AiTrainerActivity extends AppCompatActivity {
         binding.tvStepInstruction.setText("Generating step-by-step guide...");
         binding.btnGenerate.setEnabled(false);
 
+        String locationContext;
+        if ("gym".equalsIgnoreCase(workoutLocation)) {
+            locationContext = "The user works out at a GYM with access to machines, barbells, " +
+                    "dumbbells, cables, and full equipment. Include machine/weight-based variations " +
+                    "where appropriate.";
+        } else {
+            locationContext = "The user works out at HOME with minimal/no equipment. Focus on " +
+                    "bodyweight variations and movements that need no machines.";
+        }
+
+        String goalContext = "maintain";
+        if ("lose_weight".equals(fitnessGoal)) goalContext = "lose weight (fat loss)";
+        else if ("build_muscle".equals(fitnessGoal)) goalContext = "build muscle (hypertrophy)";
+
         String prompt = "You are a professional fitness trainer. Generate a detailed step-by-step guide " +
                 "for performing " + selectedExercise + " with perfect form.\n\n" +
+                locationContext + "\n" +
+                "User goal: " + goalContext + " | Level: " + fitnessLevel + "\n\n" +
                 "Requirements:\n" +
                 "- Provide exactly 6 steps\n" +
                 "- Each step should be 1-3 sentences\n" +
                 "- Include setup, execution, and form cues\n" +
+                "- Mention sets, reps, and rest time recommendations\n" +
+                "- Include progressive overload tip (how to progress over weeks)\n" +
+                "- Total workout should fit within 60 minutes\n" +
                 "- Mention common mistakes to avoid in relevant steps\n" +
-                "- Use clear, beginner-friendly language\n\n" +
+                "- Use clear, " + fitnessLevel + "-friendly language\n\n" +
                 "Format EXACTLY like this (use plain text, no markdown, no bold):\n" +
                 "STEP 1: Starting Position\n" +
                 "Stand with your feet shoulder-width apart.\n\n" +
@@ -128,9 +155,11 @@ public class AiTrainerActivity extends AppCompatActivity {
                 mainHandler.post(() -> {
                     binding.progressLoading.setVisibility(View.GONE);
                     binding.btnGenerate.setEnabled(true);
+                    // Use GeminiHelper fallback (should already provide steps)
+                    // but also show a toast for context
                     Toast.makeText(AiTrainerActivity.this,
-                            "Error: " + error, Toast.LENGTH_LONG).show();
-                    binding.tvStepInstruction.setText("Failed to generate steps. Tap 'Generate Steps' to retry.");
+                            "Using offline guide: " + error, Toast.LENGTH_SHORT).show();
+                    binding.tvStepInstruction.setText("AI unavailable. Tap 'Generate Steps' to try again.");
                     binding.btnGenerate.setVisibility(View.VISIBLE);
                 });
             }
@@ -208,5 +237,21 @@ public class AiTrainerActivity extends AppCompatActivity {
         binding.btnPrevious.setEnabled(currentStep > 0);
         binding.btnNext.setEnabled(true);
         binding.btnNext.setText(currentStep < steps.size() - 1 ? "Next →" : "Complete ✓");
+    }
+
+    private void loadUserProfile() {
+        String uid = FirebaseHelper.getInstance().getCurrentUid();
+        if (uid == null) return;
+
+        FirebaseHelper.getInstance().usersCollection().document(uid).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc == null || !doc.exists()) return;
+                    String loc = doc.getString("workoutLocation");
+                    if (loc != null) workoutLocation = loc;
+                    String goal = doc.getString("fitnessGoal");
+                    if (goal != null) fitnessGoal = goal;
+                    String level = doc.getString("fitnessLevel");
+                    if (level != null) fitnessLevel = level;
+                });
     }
 }

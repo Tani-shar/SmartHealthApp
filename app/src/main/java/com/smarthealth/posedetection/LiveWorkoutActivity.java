@@ -22,7 +22,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.google.android.material.chip.Chip;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.pose.Pose;
@@ -41,6 +40,12 @@ import java.util.concurrent.Executors;
 /**
  * Full-screen camera workout activity with real-time pose detection,
  * rep counting, form validation, and timer management.
+ *
+ * Camera lifecycle fixes:
+ * - ProcessCameraProvider stored as field to prevent GC
+ * - isCameraBound flag prevents duplicate bindings
+ * - onResume() rebinds if needed
+ * - Pose analysis runs off main thread (on cameraExecutor)
  */
 public class LiveWorkoutActivity extends AppCompatActivity {
 
@@ -49,7 +54,12 @@ public class LiveWorkoutActivity extends AppCompatActivity {
 
     private ActivityLiveWorkoutBinding binding;
     private ExecutorService cameraExecutor;
+    private ExecutorService analysisExecutor;
     private PoseDetector poseDetector;
+
+    // Camera lifecycle management
+    private ProcessCameraProvider cameraProvider;
+    private boolean isCameraBound = false;
 
     private final PoseAnalyzer poseAnalyzer = new PoseAnalyzer();
     private final FormValidator formValidator = new FormValidator();
@@ -60,8 +70,6 @@ public class LiveWorkoutActivity extends AppCompatActivity {
     private long workoutStartTime = 0;
     private long pausedDuration = 0;
     private long pauseStartTime = 0;
-    private int lastImageWidth = 1;
-    private int lastImageHeight = 1;
 
     // Timer
     private final Handler timerHandler = new Handler(Looper.getMainLooper());
@@ -98,7 +106,10 @@ public class LiveWorkoutActivity extends AppCompatActivity {
         binding = ActivityLiveWorkoutBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        cameraExecutor = Executors.newSingleThreadExecutor();
+        // 2 threads: one for ML Kit frame intake, one for backpressure headroom
+        cameraExecutor = Executors.newFixedThreadPool(2);
+        // Separate executor for pose analysis so it never starves the camera pipeline
+        analysisExecutor = Executors.newSingleThreadExecutor();
 
         // Initialize Pose Detector in STREAM_MODE for real-time
         PoseDetectorOptions options = new PoseDetectorOptions.Builder()
@@ -182,6 +193,9 @@ public class LiveWorkoutActivity extends AppCompatActivity {
     }
 
     private void startCamera() {
+        // Prevent duplicate camera binding
+        if (isCameraBound) return;
+
         binding.loadingOverlay.setVisibility(View.VISIBLE);
 
         ListenableFuture<ProcessCameraProvider> future =
@@ -189,13 +203,17 @@ public class LiveWorkoutActivity extends AppCompatActivity {
 
         future.addListener(() -> {
             try {
-                ProcessCameraProvider provider = future.get();
+                cameraProvider = future.get();
+
+                // Fix random shutdowns on many devices
+                binding.previewView.setImplementationMode(
+                        androidx.camera.view.PreviewView.ImplementationMode.COMPATIBLE);
 
                 // Preview
                 Preview preview = new Preview.Builder().build();
                 preview.setSurfaceProvider(binding.previewView.getSurfaceProvider());
 
-                // Image analysis for pose detection
+                // Image analysis for pose detection — KEEP_ONLY_LATEST is critical
                 ImageAnalysis analysis = new ImageAnalysis.Builder()
                         .setTargetResolution(new Size(640, 480))
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
@@ -206,70 +224,100 @@ public class LiveWorkoutActivity extends AppCompatActivity {
                 // Use front camera for self-monitoring
                 CameraSelector cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA;
 
-                provider.unbindAll();
-                provider.bindToLifecycle(this, cameraSelector, preview, analysis);
+                // Unbind before rebinding to prevent duplicate use cases
+                cameraProvider.unbindAll();
+                cameraProvider.bindToLifecycle(this, cameraSelector, preview, analysis);
+                isCameraBound = true;
 
                 binding.loadingOverlay.setVisibility(View.GONE);
 
             } catch (Exception e) {
                 Log.e(TAG, "Camera init error", e);
+                binding.loadingOverlay.setVisibility(View.GONE);
                 Toast.makeText(this, "Camera error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                finish();
             }
         }, ContextCompat.getMainExecutor(this));
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Rebind camera if it was unbound (e.g., after onPause in some devices)
+        if (!isCameraBound && cameraProvider != null
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED) {
+            startCamera();
+        }
+    }
+
     @androidx.annotation.OptIn(markerClass = androidx.camera.core.ExperimentalGetImage.class)
     private void processFrame(ImageProxy imageProxy) {
+        // Guard: if activity is finishing, just close and bail
+        if (isFinishing() || isDestroyed()) {
+            imageProxy.close();
+            return;
+        }
+
         if (imageProxy.getImage() == null) {
             imageProxy.close();
             return;
         }
 
-        // Frame skipping for performance
+        // Frame skipping for performance — lightweight counter, no blocking
         if (!poseAnalyzer.shouldProcessFrame()) {
             imageProxy.close();
             return;
         }
 
-        lastImageWidth = imageProxy.getWidth();
-        lastImageHeight = imageProxy.getHeight();
+        final int imgWidth = imageProxy.getWidth();
+        final int imgHeight = imageProxy.getHeight();
 
         InputImage image = InputImage.fromMediaImage(
                 imageProxy.getImage(),
                 imageProxy.getImageInfo().getRotationDegrees()
         );
 
+        // ML Kit process() is async (Task-based).
+        // imageProxy.close() MUST happen in addOnCompleteListener — the ONLY
+        // callback guaranteed to fire exactly once regardless of success/failure.
         poseDetector.process(image)
                 .addOnSuccessListener(pose -> {
-                    if (isWorkoutActive) {
-                        // Analyze pose for reps
-                        int reps = poseAnalyzer.analyzePose(pose);
+                    // Dispatch heavy work to analysisExecutor — never block
+                    // the camera pipeline or the ML Kit callback thread
+                    analysisExecutor.execute(() -> {
+                        if (isFinishing() || isDestroyed()) return;
 
-                        // Validate form
-                        FormValidator.FormFeedback feedback =
-                                formValidator.validateForm(pose, poseAnalyzer.getCurrentExercise());
+                        if (isWorkoutActive) {
+                            int reps = poseAnalyzer.analyzePose(pose);
 
-                        // Handle timer pause/resume based on form
-                        handleFormBasedTimer(feedback);
+                            FormValidator.FormFeedback feedback =
+                                    formValidator.validateForm(pose, poseAnalyzer.getCurrentExercise());
 
-                        // Update overlay on main thread
-                        runOnUiThread(() -> {
-                            binding.poseOverlay.updatePose(pose, feedback, reps,
-                                    lastImageWidth, lastImageHeight);
-                        });
-                    } else {
-                        // Show skeleton even when not in workout
-                        FormValidator.FormFeedback idleFeedback =
-                                new FormValidator.FormFeedback(true, "Press START to begin", 0);
-                        runOnUiThread(() -> {
-                            binding.poseOverlay.updatePose(pose, idleFeedback, 0,
-                                    lastImageWidth, lastImageHeight);
-                        });
-                    }
-                    imageProxy.close();
+                            handleFormBasedTimer(feedback);
+
+                            runOnUiThread(() -> {
+                                if (!isFinishing() && !isDestroyed()) {
+                                    binding.poseOverlay.updatePose(pose, feedback, reps,
+                                            imgWidth, imgHeight);
+                                }
+                            });
+                        } else {
+                            FormValidator.FormFeedback idleFeedback =
+                                    new FormValidator.FormFeedback(true, "Press START to begin", 0);
+                            runOnUiThread(() -> {
+                                if (!isFinishing() && !isDestroyed()) {
+                                    binding.poseOverlay.updatePose(pose, idleFeedback, 0,
+                                            imgWidth, imgHeight);
+                                }
+                            });
+                        }
+                    });
                 })
                 .addOnFailureListener(e -> {
+                    Log.w(TAG, "Pose detection failed", e);
+                })
+                .addOnCompleteListener(task -> {
+                    // 🔴 ALWAYS close here — guaranteed single invocation
                     imageProxy.close();
                 });
     }
@@ -388,7 +436,13 @@ public class LiveWorkoutActivity extends AppCompatActivity {
         super.onDestroy();
         isWorkoutActive = false;
         timerHandler.removeCallbacks(timerRunnable);
+        // Unbind camera explicitly and reset flag
+        if (cameraProvider != null) {
+            cameraProvider.unbindAll();
+            isCameraBound = false;
+        }
         cameraExecutor.shutdown();
+        analysisExecutor.shutdown();
         poseDetector.close();
     }
 }

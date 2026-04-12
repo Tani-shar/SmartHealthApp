@@ -79,7 +79,8 @@
         android:layout_marginEnd="20dp"
         android:max="100"
         android:progress="0"
-        android:progressTint="@color/colorPrimary" />
+        android:progressTint="@color/colorPrimary"
+        android:progressBackgroundTint="#3322D3EE" />
 
     <TextView
         android:id="@+id/tvStepIndicator"
@@ -89,48 +90,64 @@
         android:layout_marginTop="4dp"
         android:text="Step 0 of 0"
         android:textColor="@color/textSecondary"
-        android:textSize="13sp" />
+        android:textSize="13sp"
+        android:textStyle="bold" />
 
     <!-- Main Step Card -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_margin="20dp">
+        android:layout_margin="20dp"
+        android:animateLayoutChanges="true">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/cardBackground"
+            app:cardBackgroundColor="#00000000"
             app:cardCornerRadius="20dp"
-            app:cardElevation="6dp">
+            app:cardElevation="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/bg_glass_panel"
                 android:gravity="center_horizontal"
                 android:orientation="vertical"
-                android:padding="28dp">
+                android:padding="28dp"
+                android:animateLayoutChanges="true">
 
                 <!-- Step Number Badge -->
                 <TextView
                     android:id="@+id/tvStepNumber"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
-                    android:background="@color/colorPrimary"
+                    android:background="@drawable/bg_neon_border"
                     android:gravity="center"
                     android:text="1"
-                    android:textColor="#FFFFFF"
+                    android:textColor="@color/colorPrimary"
                     android:textSize="28sp"
                     android:textStyle="bold" />
 
+                <!-- Action/Workout Animation Graphic -->
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/lottieWorkoutAnimation"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:layout_marginTop="24dp"
+                    android:visibility="gone"
+                    app:lottie_autoPlay="true"
+                    app:lottie_loop="true" />
+
                 <!-- Loading indicator -->
-                <ProgressBar
+                <com.airbnb.lottie.LottieAnimationView
                     android:id="@+id/progressLoading"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
                     android:layout_marginTop="20dp"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    app:lottie_autoPlay="true"
+                    app:lottie_loop="true" />
 
                 <!-- Step Instruction Text -->
                 <TextView
@@ -141,7 +158,8 @@
                     android:lineSpacingExtra="6dp"
                     android:text="Select an exercise and tap 'Generate Steps' to get started."
                     android:textColor="@color/textPrimary"
-                    android:textSize="17sp" />
+                    android:textSize="18sp"
+                    android:gravity="center" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
     </ScrollView>

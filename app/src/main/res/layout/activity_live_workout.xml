@@ -3,13 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000">
+    android:background="@color/backgroundColor">
 
-    <!-- Camera Preview -->
+    <!-- Camera Preview (Fullscreen) -->
     <androidx.camera.view.PreviewView
         android:id="@+id/previewView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <!-- Cinematic Vignette Overlays -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:layout_gravity="top"
+        android:background="@drawable/hud_gradient_overlay" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:layout_gravity="bottom"
+        android:background="@drawable/hud_gradient_overlay"
+        android:rotation="180" />
 
     <!-- Pose Overlay (drawn on top of preview) -->
     <com.smarthealth.posedetection.PoseOverlayView
@@ -17,58 +31,69 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Top Bar: Exercise selector chips -->
+    <!-- Top Floating Header -->
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
-        android:background="#66000000"
-        android:gravity="center"
-        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingTop="48dp"
         android:paddingBottom="12dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp">
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp">
 
-        <!-- Back button row -->
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_glass_panel"
+            android:contentDescription="Back"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            app:tint="@android:color/white" />
+
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageButton
-                android:id="@+id/btnBack"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Back"
-                android:src="@android:drawable/ic_menu_close_clear_cancel"
-                app:tint="@android:color/white" />
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:orientation="vertical">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="AI Workout"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:text="LIVE WORKOUT"
+                android:textColor="@color/colorPrimary"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1" />
 
-            <View
-                android:layout_width="40dp"
-                android:layout_height="40dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AI Tracking Mode"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold" />
         </LinearLayout>
+    </LinearLayout>
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_marginTop="120dp"
+        android:clipToPadding="false"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:scrollbars="none">
 
         <!-- Exercise Chips -->
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroupExercise"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="8dp"
             app:singleSelection="true"
             app:selectionRequired="true">
 
@@ -79,7 +104,9 @@
                 android:layout_height="wrap_content"
                 android:text="Bicep Curls"
                 android:textColor="#FFFFFF"
-                app:chipBackgroundColor="#44FFFFFF"
+                app:chipBackgroundColor="@color/glassBackground"
+                app:chipStrokeColor="@color/colorPrimaryDark"
+                app:chipStrokeWidth="1dp"
                 app:checkedIconVisible="true" />
 
             <com.google.android.material.chip.Chip
@@ -90,7 +117,9 @@
                 android:text="Squats"
                 android:textColor="#FFFFFF"
                 android:checked="true"
-                app:chipBackgroundColor="#44FFFFFF"
+                app:chipBackgroundColor="@color/glassBackground"
+                app:chipStrokeColor="@color/colorPrimaryDark"
+                app:chipStrokeWidth="1dp"
                 app:checkedIconVisible="true" />
 
             <com.google.android.material.chip.Chip
@@ -100,88 +129,127 @@
                 android:layout_height="wrap_content"
                 android:text="Push-ups"
                 android:textColor="#FFFFFF"
-                app:chipBackgroundColor="#44FFFFFF"
+                app:chipBackgroundColor="@color/glassBackground"
+                app:chipStrokeColor="@color/colorPrimaryDark"
+                app:chipStrokeWidth="1dp"
                 app:checkedIconVisible="true" />
 
         </com.google.android.material.chip.ChipGroup>
-    </LinearLayout>
+    </HorizontalScrollView>
 
-    <!-- Bottom Control Panel -->
+    <!-- Transparent Floating HUD Control Panel -->
     <LinearLayout
         android:id="@+id/bottomPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="#88000000"
-        android:gravity="center_horizontal"
+        android:layout_margin="24dp"
+        android:background="@drawable/bg_glass_panel"
         android:orientation="vertical"
-        android:paddingTop="16dp"
-        android:paddingBottom="32dp"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp">
+        android:padding="24dp"
+        android:elevation="12dp">
 
-        <!-- Timer -->
-        <TextView
-            android:id="@+id/tvTimer"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="00:00"
-            android:textColor="#FFFFFF"
-            android:textSize="36sp"
-            android:textStyle="bold"
-            android:fontFamily="monospace" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tvTimerLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="WORKOUT TIME"
-            android:textColor="#99FFFFFF"
-            android:textSize="12sp"
-            android:layout_marginTop="2dp" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTimerLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SESSION TIME"
+                    android:textColor="@color/textSecondary"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1" />
+
+                <!-- Timer -->
+                <TextView
+                    android:id="@+id/tvTimer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00:00"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="44sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="REPS"
+                    android:textColor="@color/textSecondary"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1" />
+
+                <TextView
+                    android:id="@+id/tvRepsCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="44sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
 
         <!-- Start / Stop buttons -->
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
             android:gravity="center"
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnStart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="START"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="START TRACKING"
                 android:textSize="16sp"
-                app:backgroundTint="#10B981"
-                app:cornerRadius="24dp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/colorPrimary"
+                app:cornerRadius="28dp"
                 app:icon="@android:drawable/ic_media_play"
-                android:paddingStart="24dp"
-                android:paddingEnd="24dp" />
+                app:iconGravity="textStart" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnStop"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="FINISH"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="FINISH RUN"
                 android:textSize="16sp"
+                android:textStyle="bold"
                 android:visibility="gone"
-                app:backgroundTint="#EF4444"
-                app:cornerRadius="24dp"
+                app:backgroundTint="@color/colorError"
+                app:cornerRadius="28dp"
                 app:icon="@android:drawable/ic_media_pause"
-                android:paddingStart="24dp"
-                android:paddingEnd="24dp" />
+                app:iconGravity="textStart" />
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Loading overlay -->
+    <!-- Loading overlay (Glassmorphism inspired) -->
     <FrameLayout
         android:id="@+id/loadingOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#CC000000"
+        android:background="#E6020617"
         android:visibility="gone">
 
         <LinearLayout
@@ -193,15 +261,17 @@
 
             <ProgressBar
                 android:layout_width="64dp"
-                android:layout_height="64dp" />
+                android:layout_height="64dp"
+                android:indeterminateTint="@color/colorPrimary" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Initializing camera..."
-                android:textColor="#FFFFFF"
-                android:textSize="16sp" />
+                android:text="Initializing AI Vision..."
+                android:textColor="@color/colorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
         </LinearLayout>
     </FrameLayout>
 

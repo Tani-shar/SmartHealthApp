@@ -30,6 +30,7 @@ public class AiSuggestionsFragment extends Fragment {
     private int age = 0;
     private String gender = "";
     private String activityLevel = "";
+    private String workoutLocation = "home";
 
     @Nullable
     @Override
@@ -68,6 +69,8 @@ public class AiSuggestionsFragment extends Fragment {
                 if (cal != null) calorieTarget = cal.intValue();
                 Long a    = doc.getLong("age");
                 if (a != null) age = a.intValue();
+                String loc = doc.getString("workoutLocation");
+                if (loc != null) workoutLocation = loc;
 
                 binding.tvProfileSummary.setText(
                     "Profile: " + (bmi > 0 ? String.format("BMI %.1f (%s)", bmi, bmiCategory) : "BMI not set") +
@@ -135,9 +138,13 @@ public class AiSuggestionsFragment extends Fragment {
             userName, age, gender, bmi, bmiCategory,
             formatGoal(fitnessGoal), calorieTarget, activityLevel);
 
+        String locationContext = "gym".equalsIgnoreCase(workoutLocation)
+                ? "The user trains at a GYM with full equipment."
+                : "The user works out at HOME with minimal equipment.";
+
         switch (type) {
             case "meals":
-                return profile +
+                return profile + locationContext + "\n\n" +
                     "Based on this health profile, suggest 5 healthy meal ideas for today. " +
                     "Include Indian food options where appropriate. " +
                     "For each meal include: meal name, approximate calories, key ingredients, " +

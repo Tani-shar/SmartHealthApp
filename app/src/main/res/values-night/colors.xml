@@ -1,20 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Brand stays the same in dark mode -->
-    <color name="colorPrimary">#4DA3FF</color>
-    <color name="colorPrimaryDark">#1A73E8</color>
-    <color name="colorPrimaryLight">#1A2A3A</color>
-    <color name="colorAccent">#66BB6A</color>
-    <color name="colorError">#EF5350</color>
+    <!-- Brand - Cyberpunk / Apple Fitness Premium Palette -->
+    <color name="colorPrimary">#22D3EE</color> <!-- Neon Cyan -->
+    <color name="colorPrimaryDark">#0891B2</color>
+    <color name="colorPrimaryLight">#020617</color>
+    <color name="colorAccent">#8B5CF6</color> <!-- Electric Purple -->
+    <color name="colorWarning">#F59E0B</color> <!-- Gold -->
+    <color name="colorError">#F43F5E</color>  <!-- Neon Pink/Red -->
+    <color name="colorSuccess">#10B981</color> <!-- Emerald Green -->
 
-    <!-- Dark Theme surfaces -->
-    <color name="backgroundColor">#121212</color>
-    <color name="cardBackground">#1E1E1E</color>
+    <!-- UI Backgrounds (Deep Blacks) -->
+    <color name="backgroundColor">#020617</color>
+    <color name="cardBackground">#0F172A</color>
+    <color name="glassBackground">#661E293B</color> <!-- Semi-transparent -->
+
+    <!-- Text Colors -->
     <color name="textPrimary">#FFFFFF</color>
-    <color name="textSecondary">#9CA3AF</color>
-    <color name="dividerColor">#2C2C2C</color>
+    <color name="textSecondary">#94A3B8</color>
+    <color name="dividerColor">#1E293B</color>
 
-    <!-- Nav -->
-    <color name="nav_selected">#4DA3FF</color>
-    <color name="nav_unselected">#6B7280</color>
+    <!-- Nav & Charts -->
+    <color name="nav_selected">#22D3EE</color>
+    <color name="nav_unselected">#475569</color>
+
+    <color name="chart_blue">#22D3EE</color>
+    <color name="chart_green">#10B981</color>
+    <color name="chart_red">#F43F5E</color>
 </resources>

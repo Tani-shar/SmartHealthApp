@@ -282,10 +282,49 @@ public class VideoAnalysisActivity extends AppCompatActivity {
             public void onError(String error) {
                 mainHandler.post(() -> {
                     binding.progressAiCoaching.setVisibility(View.GONE);
-                    binding.tvAiCoaching.setText("Could not generate AI feedback: " + error);
+                    // Provide useful coaching feedback based on form score
+                    String fallbackCoaching = generateOfflineCoaching(result);
+                    binding.tvAiCoaching.setText(fallbackCoaching);
                 });
             }
         });
+    }
+
+    /**
+     * Generate offline coaching feedback based on the analysis result.
+     */
+    private String generateOfflineCoaching(VideoAnalysisResult result) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("⚠️ AI coaching unavailable. Here's automated feedback:\n\n");
+
+        int score = result.getFormScore();
+        if (score >= 80) {
+            sb.append("📊 Overall: Excellent form! You're performing " +
+                    result.getExercise() + " with great technique.\n\n");
+        } else if (score >= 60) {
+            sb.append("📊 Overall: Good effort on " + result.getExercise() +
+                    "! Some areas need improvement.\n\n");
+        } else {
+            sb.append("📊 Overall: Your " + result.getExercise() +
+                    " form needs work. Focus on the corrections below.\n\n");
+        }
+
+        sb.append("🔧 Tips:\n");
+        sb.append("1. Focus on controlled, slow movements rather than speed\n");
+        sb.append("2. Maintain proper breathing (exhale on exertion)\n");
+        sb.append("3. Keep your core engaged throughout\n\n");
+
+        if (result.getMistakes() != null && !result.getMistakes().isEmpty()) {
+            sb.append("⚠️ Key areas to fix:\n");
+            for (String mistake : result.getMistakes()) {
+                sb.append("• ").append(mistake).append("\n");
+            }
+            sb.append("\n");
+        }
+
+        sb.append("⭐ Keep it up! Consistency beats perfection.\n");
+        sb.append("\nTry again for personalized AI coaching.");
+        return sb.toString();
     }
 
     private String getExerciseName(PoseAnalyzer.ExerciseType type) {

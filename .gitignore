@@ -6,3 +6,5 @@
 
 # Gradle
 .gradle/
+
+/app/build.gradle/

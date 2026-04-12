@@ -5,11 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    app:cardBackgroundColor="@color/cardBackground"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    app:cardBackgroundColor="#00000000"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="0dp">
 
-    <LinearLayout
+    <LinearLayout android:background="@drawable/bg_glass_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">

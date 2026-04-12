@@ -33,11 +33,12 @@
             android:id="@+id/progressOnboarding"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="8dp"
             android:layout_marginTop="20dp"
             android:max="100"
             android:progress="20"
-            android:progressTint="@color/colorPrimary" />
+            android:progressTint="@color/colorPrimary"
+            android:progressBackgroundTint="#3322D3EE" />
 
         <TextView
             android:id="@+id/tvStepLabel"
@@ -349,11 +350,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:visibility="gone"
-                app:cardBackgroundColor="@color/cardBackground"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
+                app:cardBackgroundColor="#00000000"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
 
-                <LinearLayout
+                <LinearLayout android:background="@drawable/bg_glass_panel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -395,7 +396,8 @@
                 android:layout_height="wrap_content"
                 android:text="← Back"
                 android:visibility="gone"
-                app:cornerRadius="16dp" />
+                app:cornerRadius="24dp"
+                app:strokeColor="#55FFFFFF" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnNextStep"
@@ -403,10 +405,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="Next →"
+                android:textStyle="bold"
                 android:paddingStart="32dp"
                 android:paddingEnd="32dp"
+                android:elevation="6dp"
                 app:backgroundTint="@color/colorPrimary"
-                app:cornerRadius="16dp" />
+                app:cornerRadius="24dp" />
         </LinearLayout>
 
     </LinearLayout>

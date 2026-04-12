@@ -16,7 +16,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // Gemini API Key — replace with your actual key
-        buildConfigField "String", "GEMINI_API_KEY", "\"AIzaSyDuqoR8CiBiKHEqBRm-CQiYFDKIgiWPM0c\""
+        buildConfigField "String", "GEMINI_API_KEY", "\"AIzaSyDpRkke0pvHV0knv-eAd4-4iMGpwp6gC_k\""
     }
 
     buildTypes {
@@ -96,8 +96,7 @@ dependencies {
     // Google Sign-In (already present, keeping)
     // Step counter uses built-in SensorManager - no extra dep needed
 
-    // Gemini AI for meal suggestions
-    implementation 'com.google.ai.client.generativeai:generativeai:0.7.0'
+    // Gemini AI (v0.9.0 declared below)
 
     // Lottie for micro-animations
     implementation 'com.airbnb.android:lottie:6.3.0'

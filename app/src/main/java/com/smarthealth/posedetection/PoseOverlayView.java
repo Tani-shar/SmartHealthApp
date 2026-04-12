@@ -224,13 +224,13 @@ public class PoseOverlayView extends View {
         int bgColor;
         switch (currentFeedback.severity) {
             case 2:
-                bgColor = Color.parseColor("#CC D32F2F");
+                bgColor = Color.parseColor("#CCD32F2F");
                 break;
             case 1:
-                bgColor = Color.parseColor("#CC FF8F00");
+                bgColor = Color.parseColor("#CCFF8F00");
                 break;
             default:
-                bgColor = Color.parseColor("#CC 2E7D32");
+                bgColor = Color.parseColor("#CC2E7D32");
                 break;
         }
         overlayBgPaint.setColor(bgColor);
